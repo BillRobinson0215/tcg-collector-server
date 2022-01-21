@@ -44,9 +44,10 @@ router.post('/sign-up', (req, res, next) => {
     .then(hash => {
       // return necessary params to create a user
       return {
-        email: req.body.credentials.email,
-        hashedPassword: hash
-      }
+				email: req.body.credentials.email,
+				userName: req.body.credentials.userName,
+				hashedPassword: hash,
+			}
     })
     // create user with provided email and hashed password
     .then(user => User.create(user))
@@ -57,6 +58,21 @@ router.post('/sign-up', (req, res, next) => {
     .catch(next)
 })
 
+// router.post('/upload/:userName', upload.any(), async (req, res) => {
+// 	const file = req.files[0]
+// 	const user = await User.findOne({ userName: req.params.userName })
+// 	if (user) {
+// 		user.pfpType = file.mimetype
+// 		user.profilePicture = file.buffer
+// 		await user.save()
+// 		res.status(200).end()
+// 		return
+// 	} else {
+// 		console.log('error!')
+// 		res.status(400).end()
+// 	}
+// })
+
 // SIGN IN
 // POST /sign-in
 router.post('/sign-in', (req, res, next) => {
@@ -64,7 +80,7 @@ router.post('/sign-in', (req, res, next) => {
   let user
 
   // find a user based on the email that was passed
-  User.findOne({ email: req.body.credentials.email })
+  User.findOne({ userName: req.body.credentials.userName })
     .then(record => {
       // if we didn't find a user with that email, send 401
       if (!record) {
