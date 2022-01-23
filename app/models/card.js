@@ -55,7 +55,6 @@ const cardSchema = new mongoose.Schema({
   loyalty: {
     type: String
   },
-  
   rarity: String
 })
 
