@@ -11,6 +11,12 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			Required: true,
 		},
+    collections: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Collection'
+      }
+    ],
 		hashedPassword: {
 			type: String,
 			required: true,

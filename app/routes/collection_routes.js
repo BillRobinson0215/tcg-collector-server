@@ -12,14 +12,15 @@ const Card = require('../models/card.js')
 const requiresToken = passport.authenticate('bearer', { session: false })
 
 router.post('/collection/new', (req, res, next) => {
-  const collection = req.body.collection
+	const collection = req.body
+	console.log(req.body)
 
-  Collection.create(collection)
-    .then(collection => {
-      res.status(201).json({ collection })
-    })
-    .then(user.collection = collection._id)
-    .catch(next)
+	Collection.create(collection)
+		.then((collection) => {
+			res.status(201).json({ collection })
+		})
+		// .then((user.collection = collection._id))
+		.catch(next)
 })
 
 router.get('/collection/show', requiresToken, (req, res, next) => {
