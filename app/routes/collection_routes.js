@@ -7,18 +7,27 @@ const requireOwnership = customErrors.requireOwnership
 
 const Collection = require('../models/collection.js')
 const Card = require('../models/card.js')
+const User = require('../models/user.js')
 // const User = require('../models/card.js')
 
 const requiresToken = passport.authenticate('bearer', { session: false })
 
 router.post('/collection/new', (req, res, next) => {
 	const collection = req.body
-	console.log(req.body)
 
-	Collection.create(collection)
-		.then((collection) => {
-			res.status(201).json({ collection })
-		})
+  User.findById(collection.owner)
+  .then((user) => {
+    console.log(user)
+    Collection.create(collection)
+			.then((collection) => {
+      user.collections.push(collection)
+      user.save()
+      return collection
+      })
+			.then((collection) => {
+				res.status(201).json({ collection })
+			})
+  })
 		// .then((user.collection = collection._id))
 		.catch(next)
 })
@@ -45,6 +54,20 @@ router.get('/collection/:id', requiresToken, (req, res, next) => {
     .then(collection => res.status(200).json({ cards: collection }))
     // if an error occurs, pass it to the handler
     .catch(next)
+})
+
+router.get('/collection/:user', requiresToken, (req, res, next) => {
+	User.findById(req.params.user)
+		.then((collections) => {
+			// `examples` will be an array of Mongoose documents
+			// we want to convert each one to a POJO, so we use `.map` to
+			// apply `.toObject` to each one
+			return collections.map((collections) => collections.toObject())
+		})
+		// respond with status 200 and JSON of the examples
+		.then((collection) => res.status(200).json({ collection }))
+		// if an error occurs, pass it to the handler
+		.catch(next)
 })
 
 router.delete('/collection/delete/:id', requiresToken, (req, res, next) => {

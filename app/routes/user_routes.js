@@ -100,7 +100,7 @@ router.post('/sign-in', (req, res, next) => {
 				const token = crypto.randomBytes(16).toString('hex')
 				user.token = token
 				// save the token to the DB as a property on user
-				console.log(user)
+        user.save()
 				return user
 			} else {
 				// throw an error to trigger the error handler and end the promise chain
