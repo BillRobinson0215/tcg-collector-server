@@ -57,15 +57,15 @@ router.get('/collection/:id', requiresToken, (req, res, next) => {
 })
 
 router.get('/collection/:user', requiresToken, (req, res, next) => {
-	User.findById(req.params.user)
-		.then((collections) => {
+	User.findById(req.user)
+		.then((user) => {
 			// `examples` will be an array of Mongoose documents
 			// we want to convert each one to a POJO, so we use `.map` to
 			// apply `.toObject` to each one
-			return collections.map((collections) => collections.toObject())
+			return user.collections.map((user) => user.toObject())
 		})
 		// respond with status 200 and JSON of the examples
-		.then((collection) => res.status(200).json({ collection }))
+		.then((user) => res.status(200).json({ user }))
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })
