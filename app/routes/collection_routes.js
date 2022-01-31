@@ -8,6 +8,9 @@ const requireOwnership = customErrors.requireOwnership
 const Collection = require('../models/collection.js')
 const Card = require('../models/card.js')
 const User = require('../models/user.js')
+const { request } = require('chai')
+const mtg = require('mtgsdk')
+const axios = require('axios')
 // const User = require('../models/card.js')
 
 const requiresToken = passport.authenticate('bearer', { session: false })
@@ -46,23 +49,25 @@ router.get('/collection/show', requiresToken, (req, res, next) => {
     .catch(next)
 })
 
-router.get('/collection/:id', requiresToken, (req, res, next) => {
-  Collection.findById(req.params.id)
-    .populate('cards')
-    .then(handle404)
-    // if `findById` is succesful, respond with 200 and "example" JSON
-    .then(collection => res.status(200).json({ cards: collection }))
-    // if an error occurs, pass it to the handler
-    .catch(next)
-})
+// router.get('/collection/:id', requiresToken, (req, res, next) => {
+//   Collection.findById(req.params.id)
+//     .populate('cards')
+//     .then(handle404)
+//     // if `findById` is succesful, respond with 200 and "example" JSON
+//     .then(collection => res.status(200).json({ cards: collection }))
+//     // if an error occurs, pass it to the handler
+//     .catch(next)
+// })
 
-router.get('/collection/:user', requiresToken, (req, res, next) => {
-	User.findById(req.params.user)
-		.then((collections) => {
+router.get('/collection/find-collection/', requiresToken, (req, res, next) => {
+	User.findById(req.user.id)
+  .populate('collections')
+		.then((user) => {
+      console.log(user)
 			// `examples` will be an array of Mongoose documents
 			// we want to convert each one to a POJO, so we use `.map` to
 			// apply `.toObject` to each one
-			return collections.map((collections) => collections.toObject())
+			return user.collections.map((collections) => collections.toObject())
 		})
 		// respond with status 200 and JSON of the examples
 		.then((collection) => res.status(200).json({ collection }))
@@ -78,20 +83,28 @@ router.delete('/collection/delete/:id', requiresToken, (req, res, next) => {
 })
 
 router.patch('/collection/:id/:cardId', async (req, res, next) => {
-		const card = await Card.findById(req.params.cardId)
-		console.log(card._id)
-		console.log(req.params.id)
-		Collection.findById(req.params.id)
-			.populate('cards')
-			.then((collection) => {
-				collection.cards.push(card)
-				collection.save().then((collection) => {
-					res.status(204).json(collection)
+		const response = await axios({
+      url: 'https://api.magicthegathering.io/v1/cards/' + req.params.cardId,
+      method: 'GET',
+    })    
+    const card = response.data.card
+    let found = await Card.find({id: card.id})
+    console.log('this is found')
+    console.log(found)
+    if (found.length === 0) {
+        Card.create(card)  
+    } else {
+      console.log('card added?')
+    }
+			Collection.findById(req.params.id)
+				.populate('cards')
+				.then((collection) => {
+					collection.cards.push(card)
+					collection.save().then((collection) => {
+						res.status(204).json(collection)
+					})
 				})
-			})
-			// if an error occurs, pass it to the handler
-			.catch(next)
-	}
+		}
 )
 
 module.exports = router

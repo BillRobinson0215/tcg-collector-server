@@ -3,45 +3,99 @@ const mongoose = require('mongoose')
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
 
   manaCost: {
     type: String,
-    require: true
   },
 
-  convertedManaCost: {
+  cmc: {
+    type: Number,
+    required: true,
+  },
+
+  colors: [
+    {
+    type: String
+  }
+  ],
+
+  colorIdentity: [
+    {
+    type: String
+    }
+],
+
+  type: {
     type: String,
     required: true
   },
 
-  colorIdentity: {
+  types:  [{
     type: String,
     required: true
+  }],
+
+  rarity: {
+    type: String
   },
 
-  type: [
-    {
-      type: String,
-      required: true
-    }
-  ],
+  set: {
+    type: String
+  },
 
-  subtypes: [
-    {
-      type: String
-    }
-  ],
-
-  keywords: [
-    {
-      type: String
-    }
-  ],
+  setName: {
+    type: String,
+    required: true,
+  },
 
   text: {
     type: String
+  },
+
+  artist: {
+    type: String,
+  },
+
+  number: {
+    type: String
+  },
+
+  layout: {
+    type: String
+  },
+
+  multiverseid: {
+    type: String
+  },
+
+  imageUrl: {
+    type: String
+  },
+
+  variations: [
+    {
+      type: String
+    }
+  ],
+
+  printings: [
+    {
+      type: String
+    }
+    ],
+
+  originalText: {
+    type: String
+  },
+
+  originalType: {
+    type: String
+  },
+  id: {
+    type: String,
+    required: true
   },
 
   power: {
@@ -55,7 +109,6 @@ const cardSchema = new mongoose.Schema({
   loyalty: {
     type: String
   },
-  rarity: String
 })
 
 module.exports = mongoose.model('Card', cardSchema)
