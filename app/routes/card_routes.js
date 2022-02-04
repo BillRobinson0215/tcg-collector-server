@@ -30,9 +30,12 @@ router.get('/cards/:name', (req, res, next) => {
 })
 
 router.get('/cardsid/:id', (req, res, next) => {
-  Card.findOne({ _id: req.params.id })
+  Card.findById({ _id: req.params.id })
+  .then((card) => {
+    return card.map(card => card.toObject())
+  })
   // respond with status 200 and JSON of the examples
-    .then((cards) => res.status(200).json({ cards }))
+    .then((card) => res.status(200).json({ card }))
   // if an error occurs, pass it to the handler
     .catch(next)
 })

@@ -49,6 +49,14 @@ router.get('/collection/show', requiresToken, (req, res, next) => {
     .catch(next)
 })
 
+router.get('/collection/show/:id', requiresToken, (req, res, next) => {
+  Collection.findById(req.params.id)
+  // respond with status 200 and JSON of the examples
+    .then((cards) => res.status(200).json({ cards }))
+  // if an error occurs, pass it to the handler
+    .catch(next)
+})
+
 // router.get('/collection/:id', requiresToken, (req, res, next) => {
 //   Collection.findById(req.params.id)
 //     .populate('cards')
@@ -75,7 +83,7 @@ router.get('/collection/find-collection/', requiresToken, (req, res, next) => {
 		.catch(next)
 })
 
-router.delete('/collection/delete/:id', requiresToken, (req, res, next) => {
+router.delete('/collection/delete/:id', (req, res, next) => {
   Collection.findOneAndDelete({ _id: req.params.id })
     .exec()
     .then((counter) => res.json())
@@ -89,12 +97,9 @@ router.patch('/collection/:id/:cardId', async (req, res, next) => {
     })    
     const card = response.data.card
     let found = await Card.find({id: card.id})
-    console.log('this is found')
-    console.log(found)
     if (found.length === 0) {
         Card.create(card)  
     } else {
-      console.log('card added?')
     }
 			Collection.findById(req.params.id)
 				.populate('cards')
