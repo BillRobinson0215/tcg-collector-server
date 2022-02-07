@@ -126,7 +126,8 @@
           },
 
           quantity: {
-            type: Number
+            type: Number,
+            default: 1
           }
         },
       ],

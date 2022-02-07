@@ -17,6 +17,12 @@ const userSchema = new mongoose.Schema(
         ref: 'Collection'
       }
     ],
+		decks: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'Deck'
+			}
+		],
 		hashedPassword: {
 			type: String,
 			required: true,

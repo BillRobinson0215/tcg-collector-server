@@ -20,7 +20,6 @@ router.post('/collection/new', (req, res, next) => {
 
   User.findById(collection.owner)
   .then((user) => {
-    console.log(user)
     Collection.create(collection)
 			.then((collection) => {
       user.collections.push(collection)
@@ -71,7 +70,6 @@ router.get('/collection/find-collection/', requiresToken, (req, res, next) => {
 	User.findById(req.user.id)
   .populate('collections')
 		.then((user) => {
-      console.log(user)
 			// `examples` will be an array of Mongoose documents
 			// we want to convert each one to a POJO, so we use `.map` to
 			// apply `.toObject` to each one
@@ -90,11 +88,54 @@ router.delete('/collection/delete/:id', (req, res, next) => {
     .catch((err) => next(err))
 })
 
+router.delete('/collection/delete/card/:id/:cardId', (req, res, next) => {
+  let spliceCard = null
+	Collection.findById(req.params.id)
+		.populate('cards')
+		.then((collection) => {
+      console.log(spliceCard)
+			const cardId = req.params.cardId
+      console.log(collection, 'something else')
+      console.log(cardId)
+			spliceCard = collection.cards.findIndex((card) => card.id === cardId) 
+			return collection
+		})
+		.then((collection) => {
+      console.log(spliceCard)
+				collection.cards.splice(spliceCard, 1)
+				collection.save().then((collection) => {
+					res.status(204).json(collection)
+				})
+			}
+		)
+})
+
+// Update Card Quantities
+router.patch('/collection/update/:id/:cardId/:quantity', (req, res, next) => {
+	let cardIndex = null
+  Collection.findById(req.params.id)
+		.populate('cards')
+		.then((collection) => {
+			const cardId = req.params.cardId
+			console.log(cardIndex)
+			cardIndex = collection.cards.findIndex((card) => card.id === cardId)
+			console.log(cardIndex)
+			return collection
+		})
+		.then((collection) => {
+				collection.cards[cardIndex].quantity = req.params.quantity
+				collection.save().then((collection) => {
+					res.status(204).json(collection)
+				})
+		})
+})
+
 router.patch('/collection/:id/:cardId', async (req, res, next) => {
 		const response = await axios({
       url: 'https://api.magicthegathering.io/v1/cards/' + req.params.cardId,
       method: 'GET',
-    })    
+    }) 
+    let dup = null
     const card = response.data.card
     let found = await Card.find({id: card.id})
     if (found.length === 0) {
@@ -104,11 +145,24 @@ router.patch('/collection/:id/:cardId', async (req, res, next) => {
 			Collection.findById(req.params.id)
 				.populate('cards')
 				.then((collection) => {
+          const cardId = card.id
+          console.log(dup)
+          dup = collection.cards.findIndex((card) => card.id === cardId)
+          console.log(dup)
+          return collection
+      })
+        .then((collection) => {
+          if (dup === -1) {
 					collection.cards.push(card)
 					collection.save().then((collection) => {
 						res.status(204).json(collection)
 					})
-				})
+          } else {
+            collection.cards[dup].quantity = collection.cards[dup].quantity + 1
+            collection.save()
+            res.status(204).json(collection)
+          }
+        })
 		}
 )
 
